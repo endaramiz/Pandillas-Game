@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="10" height="5" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="editor_tileset" tilewidth="32" tileheight="32">
+  <image source="../../Texture/editor_tileset.png" width="384" height="64"/>
+ </tileset>
+ <layer name="flechas_pista" width="10" height="5">
+  <data>
+   <tile gid="3"/>
+   <tile gid="5"/>
+   <tile gid="8"/>
+   <tile gid="8"/>
+   <tile gid="5"/>
+   <tile gid="4"/>
+   <tile gid="4"/>
+   <tile gid="4"/>
+   <tile gid="5"/>
+   <tile gid="4"/>
+   <tile gid="5"/>
+   <tile gid="0"/>
+   <tile gid="5"/>
+   <tile gid="5"/>
+   <tile gid="0"/>
+   <tile gid="13"/>
+   <tile gid="5"/>
+   <tile gid="0"/>
+   <tile gid="0"/>
+   <tile gid="5"/>
+   <tile gid="5"/>
+   <tile gid="0"/>
+   <tile gid="5"/>
+   <tile gid="18"/>
+   <tile gid="0"/>
+   <tile gid="0"/>
+   <tile gid="5"/>
+   <tile gid="17"/>
+   <tile gid="0"/>
+   <tile gid="5"/>
+   <tile gid="5"/>
+   <tile gid="15"/>
+   <tile gid="5"/>
+   <tile gid="0"/>
+   <tile gid="0"/>
+   <tile gid="0"/>
+   <tile gid="5"/>
+   <tile gid="5"/>
+   <tile gid="0"/>
+   <tile gid="5"/>
+   <tile gid="2"/>
+   <tile gid="2"/>
+   <tile gid="2"/>
+   <tile gid="2"/>
+   <tile gid="5"/>
+   <tile gid="5"/>
+   <tile gid="6"/>
+   <tile gid="6"/>
+   <tile gid="5"/>
+   <tile gid="1"/>
+  </data>
+ </layer>
+</map>
