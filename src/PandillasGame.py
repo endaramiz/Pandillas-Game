@@ -44,6 +44,7 @@ from panda3d.ai import *
 
 from TiledParser import TiledParser
 from caja import Caja
+from player import Player
 
 #************************GLOBAL**********************************************
 speed = 0.75
@@ -74,7 +75,18 @@ class World(DirectObject):
         #self.inst2 = addInstructions(0.90, "[Enter]: Start Pathfinding")
         
         #base.disableMouse()
-        base.cam.setPosHpr(0,-210,135,0,327,0)
+        #base.useDrive()
+        #base.useTrackball()
+        #base.oobe()
+        #base.cam.setPosHpr(0,-210,135,0,327,0)
+        base.accept( "escape" , sys.exit)
+
+        props = WindowProperties()
+        #props.setCursorHidden(True)
+        base.disableMouse()
+        props.setMouseMode(WindowProperties.MRelative)
+        base.win.requestProperties(props)
+        base.win.movePointer(0, base.win.getXSize() / 2, base.win.getYSize() / 2)
         
         self._map_models = None
         self._cajas = None
@@ -89,6 +101,7 @@ class World(DirectObject):
         self._last_t = None
         self._last_t_space = 0
         
+        self._player = Player()
         
     def loadBkg(self):
         self.environ1 = loader.loadModel("../data/models/skydome")      
@@ -108,6 +121,10 @@ class World(DirectObject):
         self.dirnlightnode1.setHpr(0,317,0)
         render.setLight(self.dirnlightnode1)
     
+        self.environ1 = loader.loadModel("../data/models/groundPlane")      
+        self.environ1.reparentTo(render)
+        self.environ1.setPos(0,0,0)
+        self.environ1.setScale(1)
     def loadLevel(self):
         if (self._map_models != None):
             for m in self._map_models:
