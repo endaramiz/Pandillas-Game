@@ -38,6 +38,8 @@ from direct.gui.OnscreenText import OnscreenText
 from panda3d.ai import *
 
 
+from panda3d.ode import OdeWorld, OdeSimpleSpace, OdeJointGroup
+from panda3d.ode import OdeBody, OdeMass, OdeBoxGeom, OdePlaneGeom
 
 #import os
 #os.chdir("../")
@@ -94,15 +96,31 @@ class World(DirectObject):
         self._num_lvl = 1
         self._num_lvls = 1
         
+        self.initODE()
         self.loadBkg()
         self.loadLevel()
         self.setAI()
-       
+        
         self._last_t = None
         self._last_t_space = 0
         
-        self._player = Player()
+        self._player = Player(self.world, self.space)
         
+    def initODE(self):
+        # Setup our physics world
+        self.world = OdeWorld()
+        self.world.setGravity(0, 0, -9.81)
+        
+        # The surface table is needed for autoCollide
+        self.world.initSurfaceTable(1)
+        self.world.setSurfaceEntry(0, 0, 150, 0.0, 9.1, 0.9, 0.00001, 0.0, 0.002)
+        
+        # Create a space and add a contactgroup to it to add the contact joints
+        self.space = OdeSimpleSpace()
+        self.space.setAutoCollideWorld(self.world)
+        self.contactgroup = OdeJointGroup()
+        self.space.setAutoCollideJointGroup(self.contactgroup)
+ 
     def loadBkg(self):
         self.environ1 = loader.loadModel("../data/models/skydome")      
         self.environ1.reparentTo(render)
@@ -125,6 +143,10 @@ class World(DirectObject):
         self.environ1.reparentTo(render)
         self.environ1.setPos(0,0,0)
         self.environ1.setScale(1)
+        
+        groundGeom = OdePlaneGeom(self.space, Vec4(0, 0, 1, 0))
+        #groundGeom.setCollideBits(BitMask32(0x00000001))
+        #groundGeom.setCategoryBits(BitMask32(0x00000002))
     def loadLevel(self):
         if (self._map_models != None):
             for m in self._map_models:
@@ -184,6 +206,18 @@ class World(DirectObject):
                 for caja in self._cajas:
                     caja.model.setPos(caja.j*8 + caja.dj*f*8,-caja.i*8 - caja.di*f*8, 0)
         self._last_t = task.time
+        
+        ##################
+        
+        self.space.autoCollide() # Setup the contact joints
+        # Step the simulation and set the new positions
+        if (task.frame > 1):
+            self.world.quickStep(globalClock.getDt())
+        #for np, body in boxes:
+        #    np.setPosQuat(render, body.getPosition(), Quat(body.getQuaternion()))
+        ##self._player.updatePos()
+        self.contactgroup.empty() # Clear the contact joints
+  
         return task.cont
         
     def actionSpace(self):
