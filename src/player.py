@@ -19,7 +19,7 @@ class Player(object):
         self._attachControls()
         self._initPhysics(btWorld)
         self._loadModel()
-        #taskMgr.add(self.mouseUpdate, 'mouse-task')
+        taskMgr.add(self.mouseUpdate, 'mouse-task')
         taskMgr.add(self.moveUpdate, 'move-task')
         
         self._vforce = Vec3(0,0,0)
@@ -43,8 +43,13 @@ class Player(object):
         self._model = loader.loadModel("../data/models/d1_sphere.egg")      
         self._model.reparentTo(self.playerNode)
         
+        pl = base.cam.node().getLens()
+        pl.setNear(0.4)
+        base.cam.node().setLens(pl)
+
     def _initPhysics(self, world):
-        shape = BulletSphereShape(0.5)
+        rad = 0.5
+        shape = BulletSphereShape(rad)
         self.rbNode = BulletRigidBodyNode('Box')
         self.rbNode.setMass(1.0)
         self.rbNode.addShape(shape)
@@ -56,9 +61,10 @@ class Player(object):
         world.attachRigidBody(self.rbNode)
         self.camNode = self.playerNode.attachNewNode("cam node")
         base.camera.reparentTo(self.camNode)
+        self.camNode.setPos(self.camNode, 0, 0, 1.75-rad)
         
-        self.camNode.setPos(self.camNode, 0, -5,0.5)
-        self.camNode.lookAt(Point3(0,0,0),Vec3(0,1,0))
+        #self.camNode.setPos(self.camNode, 0, -5,0.5)
+        #self.camNode.lookAt(Point3(0,0,0),Vec3(0,1,0))
   
     def mouseUpdate(self,task):
         md = base.win.getPointer(0)
@@ -74,8 +80,8 @@ class Player(object):
         
     def moveUpdate(self,task):
         if (self._vforce.length() > 0):
-            self.rbNode.applyCentralForce(self._vforce)
-            #self.rbNode.applyCentralForce(self.playerNode.getRelativeVector(self.camNode, self._vforce))
+            #self.rbNode.applyCentralForce(self._vforce)
+            self.rbNode.applyCentralForce(self.playerNode.getRelativeVector(self.camNode, self._vforce))
         else:
             pass
         
