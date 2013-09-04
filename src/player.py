@@ -1,35 +1,29 @@
 from panda3d.core import *
 
-from panda3d.ode import *
+from panda3d.bullet import BulletWorld
+from panda3d.bullet import BulletPlaneShape
+from panda3d.bullet import BulletRigidBodyNode
+from panda3d.bullet import BulletBoxShape, BulletSphereShape
+
+from panda3d.bullet import BulletCharacterControllerNode
+from panda3d.bullet import BulletCapsuleShape
+from panda3d.bullet import ZUp
 
 class Player(object):
 
-    global playerNode
-    playerNode = NodePath('player')
-    F_MOVE = 1000.0
+    #global playerNode
+    #playerNode = NodePath('player')
+    F_MOVE = 10.0
     
-    def __init__(self, ode_world, ode_space):
-        self._loadModel()
-        self._initCamera()
+    def __init__(self, btWorld):
         self._attachControls()
-        self._initPhysics(ode_world, ode_space)
+        self._initPhysics(btWorld)
         taskMgr.add(self.mouseUpdate, 'mouse-task')
         taskMgr.add(self.moveUpdate, 'move-task')
         
         self._vforce = Vec3(0,0,0)
         
-        ItemHandling(playerNode)
-        
-    def _loadModel(self):
-        playerNode.reparentTo(render)
-        playerNode.setPos(0,0,14)
-        #playerNode.setScale(.05)
-   
-    def _initCamera(self):
-        pl = base.cam.node().getLens()
-        pl.setFov(70)
-        base.cam.node().setLens(pl)
-        base.camera.reparentTo(playerNode)
+        ItemHandling(self.playerNode)
 
     def _attachControls(self):
         #base.accept( "s" , self.__setattr__,["walk",self.STOP] )
@@ -45,37 +39,21 @@ class Player(object):
         base.accept("space-up", self.nogoUp)
        # Create the body and set the mass
   
-    def _initPhysics(self, world, space):
-        radius = 0.25
-        length = 2
-        self._ode_body = OdeBody(world)
-        M = OdeMass()
-        #M.setBox(50, 1, 1, 1)
-        M.set_cylinder_total(100, 3, radius, length)
-        self._ode_body.setMass(M)
-        self._ode_body.setPosition(playerNode.getPos())
-        self._ode_body.setQuaternion(playerNode.getQuat())
-        # Create a BoxGeom
-        boxGeom = OdeCappedCylinderGeom(space, radius, length)
-        #boxGeom = OdeBoxGeom(space, 1, 1, 1)
-        #boxGeom.setCollideBits(BitMask32(0x00000002))
-        #boxGeom.setCategoryBits(BitMask32(0x00000001))
-        boxGeom.setBody(self._ode_body)
-        #boxes.append((boxNP, boxBody))
-        
-        j1 = OdeAMotorJoint(world)
-        #j1.setAnchor(0,0,0)
-        j1.attach(self._ode_body, None)
-        j1.setParamVel(0, 30)
-        j1.setParamVel(1, 0)
-        j1.setParamVel(2, 0)
-        #j1.setParamHiStop(0, 0)
-        #j1.setParamHiStop(1, 0)
-        #j1.setParamHiStop(2, 0)
-        #j1.setParamLoStop(0, 0)
-        #j1.setParamLoStop(1, 0)
-        #j1.setParamLoStop(2, 0)
-        #self._ode_body.attach(j1, None)
+    def _initPhysics(self, world):
+        shape = BulletSphereShape(0.5)
+        self.rbNode = BulletRigidBodyNode('Box')
+        self.rbNode.setMass(1.0)
+        self.rbNode.addShape(shape)
+        self.rbNode.setAngularFactor(Vec3(0,0,0))
+        self.rbNode.setDeactivationEnabled(False, True)
+        self.playerNode = render.attachNewNode(self.rbNode)
+        self.playerNode.setPos(0, 0, 4)
+        world.attachRigidBody(self.rbNode)
+        #model = loader.loadModel('models/box.egg')
+        #model.flattenLight()
+        #model.reparentTo(np)
+        self.camNode = self.playerNode.attachNewNode("cam node")
+        base.camera.reparentTo(self.camNode)
   
     def mouseUpdate(self,task):
         md = base.win.getPointer(0)
@@ -83,37 +61,17 @@ class Player(object):
         dy = md.getY() - base.win.getYSize()/2.0
         
         yaw = dx/(base.win.getXSize()/2.0) * 90
-        playerNode.setHpr(playerNode, -yaw, 0, 0)
+        self.camNode.setHpr(self.camNode, -yaw, 0, 0)
         #base.camera.setHpr(base.camera, yaw, pith, roll)
         
         base.win.movePointer(0, base.win.getXSize() / 2, base.win.getYSize() / 2)
         return task.cont
         
-        md = base.win.getPointer(0)
-        x = md.getX()
-        y = md.getY()
-       
-        cameray = base.camera.getP() - (y - base.win.getYSize()/2)*0.12
-        if base.win.movePointer(0, base.win.getXSize()/2, base.win.getYSize()/2):
-           playerNode.setH(playerNode.getH() -  (x - base.win.getXSize()/2)*0.12)
-           if cameray<-80:
-               cameray = -80
-           if cameray>90:
-               cameray = 90
-           base.camera.setP(cameray)
-        return task.cont
-     
     def moveUpdate(self,task):
-        #playerNode.setPos(playerNode,self._vspeed*globalClock.getDt())
-        ###playerNode.setPosQuat(render, self._ode_body.getPosition(), Quat(self._ode_body.getQuaternion()))
-        playerNode.setPos(render, self._ode_body.getPosition())
-        
         if (self._vforce.length() > 0):
-            print self._vforce, render.getRelativeVector(playerNode, self._vforce)
-            self._ode_body.setForce(render.getRelativeVector(playerNode, self._vforce))
+            self.rbNode.applyCentralForce(self.playerNode.getRelativeVector(self.camNode, self._vforce))
         else:
             pass
-        #self._vforce = Vec3(0,0,0)
         
         return task.cont
         
