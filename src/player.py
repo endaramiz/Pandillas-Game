@@ -18,7 +18,8 @@ class Player(object):
     def __init__(self, btWorld):
         self._attachControls()
         self._initPhysics(btWorld)
-        taskMgr.add(self.mouseUpdate, 'mouse-task')
+        self._loadModel()
+        #taskMgr.add(self.mouseUpdate, 'mouse-task')
         taskMgr.add(self.moveUpdate, 'move-task')
         
         self._vforce = Vec3(0,0,0)
@@ -37,8 +38,11 @@ class Player(object):
         base.accept("d-up", self.nogoRight)
         base.accept("space", self.goUp)
         base.accept("space-up", self.nogoUp)
-       # Create the body and set the mass
-  
+        
+    def _loadModel(self):
+        self._model = loader.loadModel("../data/models/d1_sphere.egg")      
+        self._model.reparentTo(self.playerNode)
+        
     def _initPhysics(self, world):
         shape = BulletSphereShape(0.5)
         self.rbNode = BulletRigidBodyNode('Box')
@@ -48,12 +52,13 @@ class Player(object):
         self.rbNode.setDeactivationEnabled(False, True)
         self.playerNode = render.attachNewNode(self.rbNode)
         self.playerNode.setPos(0, 0, 4)
+        self.playerNode.setHpr(0,0,0)
         world.attachRigidBody(self.rbNode)
-        #model = loader.loadModel('models/box.egg')
-        #model.flattenLight()
-        #model.reparentTo(np)
         self.camNode = self.playerNode.attachNewNode("cam node")
         base.camera.reparentTo(self.camNode)
+        
+        self.camNode.setPos(self.camNode, 0, -5,0.5)
+        self.camNode.lookAt(Point3(0,0,0),Vec3(0,1,0))
   
     def mouseUpdate(self,task):
         md = base.win.getPointer(0)
@@ -69,7 +74,8 @@ class Player(object):
         
     def moveUpdate(self,task):
         if (self._vforce.length() > 0):
-            self.rbNode.applyCentralForce(self.playerNode.getRelativeVector(self.camNode, self._vforce))
+            self.rbNode.applyCentralForce(self._vforce)
+            #self.rbNode.applyCentralForce(self.playerNode.getRelativeVector(self.camNode, self._vforce))
         else:
             pass
         
@@ -92,7 +98,7 @@ class Player(object):
     def nogoRight(self):
         self._vforce.setX( 0)
     def goUp(self):
-        self._vforce.setZ( self.F_MOVE)
+        self._vforce.setZ( self.F_MOVE*2)
     def nogoUp(self):
         self._vforce.setZ( 0)
 

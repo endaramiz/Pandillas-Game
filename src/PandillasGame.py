@@ -83,6 +83,8 @@ class World(DirectObject):
         #base.useTrackball()
         #base.oobe()
         #base.cam.setPosHpr(0,-210,135,0,327,0)
+        #base.cam.setPos(-5, 3, 16)
+        #base.cam.lookAt(0,0,0)
         base.accept( "escape" , sys.exit)
 
         props = WindowProperties()
@@ -136,7 +138,7 @@ class World(DirectObject):
         self.environ1.setPos(0,0,0)
         self.environ1.setScale(1)
         
-        groundShape = BulletPlaneShape(Vec3(0, 0, 1), 1)
+        groundShape = BulletPlaneShape(Vec3(0, 0, 1), 0)
         groundNode = BulletRigidBodyNode('Ground')
         groundNode.addShape(groundShape)
         self.world.attachRigidBody(groundNode)
