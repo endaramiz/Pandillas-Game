@@ -6,40 +6,8 @@ from math import ceil
 import sys
 
 from caja import Caja
+from modulo import Modulo
 
-class Tileset(object):
-    def __init__(self, xml_doc):
-        self._img = None
-        self._tpw = None
-        self._tph = None
-        
-        tileset = xml_doc.getElementsByTagName("tileset")
-        self._img = Image(tileset[0].getAttribute("name")+".png")
-        self._tpw = self._img.w/int(tileset[0].getAttribute("tilewidth"))
-        self._tph = self._img.h/int(tileset[0].getAttribute("tileheight"))
-        
-    def image(self):
-        return self._img
-        
-    def tpw(self):
-        return self._tpw
-        
-    def tph(self):
-        return self._tph
-        
-    def tw(self):
-        return self._img.w/self.tpw()
-        
-    def th(self):
-        return self._img.h/self.tph()
-        
-    def src_rect(self, ti):
-        if ti > self.tpw()*self.tph():
-            raise Exception('TileNumber not found')
-        i = ti/self.tpw()
-        j = ti%self.tpw()
-        return j*self.tw(), i*self.th(), self.tw(), self.th()
-    
 class Layer(object):
     def __init__(self, xml_layer):
         #print xml_layer.toxml()
@@ -78,18 +46,26 @@ class TiledParser(object):
         xml_doc = minidom.parse("../data/tiles/maps/"+tilemap_name+".tmx")
         self._layer = Layer(xml_doc.getElementsByTagName("layer")[0])
         
-    def load_models(self):
-        models = list()
+    def load_models(self, world):
+        #models = list()
+        modulos = list()
         for i in range(self._layer.h()):
             for j in range(self._layer.w()):
                 v = self._layer.get(i, j)
-                s = 8
+                #s = 8
+                w = 2.5
+                h = 2
                 if (v == 5):
-                    model = loader.loadModel("../data/models/my/mybpoint.egg")      
-                    model.reparentTo(render)
-                    model.setPos(j*s,-i*s,0)
-                    model.setScale(s/2.)
-                    models.append(model)
+                    x = j*w
+                    y = i*w
+                    modulo = Modulo(world, x, y, w, h)
+                    modulos.append(modulo)
+                    #model = loader.loadModel("../data/models/cube.egg")      
+                    #model.reparentTo(render)
+                    #model.setPos(j*w,-i*w,0)
+                    #model.setScale(s/2.)
+                    #models.append(model)
+                    """
                 elif (1 <= v and v <= 4):
                     model = loader.loadModel("../data/models/my/mybflecha_neg.egg")      
                     model.reparentTo(render)
@@ -123,6 +99,8 @@ class TiledParser(object):
                     model.setPos(j*s,-i*s,0)
                     model.setScale(s/2.)
                     models.append(model)
+                    """
+        return modulos
         return models
                     
     def load_cajas(self):

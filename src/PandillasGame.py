@@ -94,6 +94,7 @@ class World(DirectObject):
         
         self._map_models = None
         self._cajas = None
+        self._modulos = None
         
         self._num_lvl = 1
         self._num_lvls = 1
@@ -147,9 +148,13 @@ class World(DirectObject):
         if (self._cajas != None):
             for c in self._cajas:
                 c.model.remove()
+        if (self._modulos is not None):
+            for m in self._modulos:
+                m.remove()
         self._tp = TiledParser("map1")
-        self._map_models = self._tp.load_models()
+        #self._map_models = self._tp.load_models()
         self._cajas = self._tp.load_cajas()
+        self._modulos = self._tp.load_models(self.world)
       
     def setAI(self):
         self._LogicTickTime = 1####
