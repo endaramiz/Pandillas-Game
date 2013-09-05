@@ -227,7 +227,13 @@ class World(DirectObject):
         for panel in self._paneles:
             contact = self.world.contactTestPair(self._player.getRBNode(), panel.getRBNode())
             if contact.getNumContacts() > 0:
-                print panel
+                panel.manipulate()
+                
+        brokens = 0
+        for panel in self._paneles:
+            if panel.isBroken():
+                brokens += 1
+        print brokens
   
         return task.cont
         
