@@ -43,6 +43,8 @@ from panda3d.bullet import BulletPlaneShape
 from panda3d.bullet import BulletRigidBodyNode
 from panda3d.bullet import BulletBoxShape
 
+from direct.gui.OnscreenImage import OnscreenImage
+
 #import os
 #os.chdir("../")
 
@@ -70,7 +72,8 @@ def addTitle(text):
                         pos=(1.3,-0.95), align=TextNode.ARight, scale = .07)
 
 class World(DirectObject):
-
+    VIDAS = 3
+    
     def __init__(self):
         self.keyMap = {"left":0, "right":0, "up":0, "down":0}
         
@@ -104,6 +107,7 @@ class World(DirectObject):
         
         self.initBullet()
         self.loadBkg()
+        self.loadGUI()
         self.loadLevel()
         self.setAI()
         
@@ -148,6 +152,22 @@ class World(DirectObject):
         groundNode = BulletRigidBodyNode('Ground')
         groundNode.addShape(groundShape)
         self.world.attachRigidBody(groundNode)
+        
+    def loadGUI(self):
+        self.vidas_imgs = list()
+        w = 0.24
+        for i in range(self.VIDAS):
+            image_warning = OnscreenImage(image = '../data/Texture/signal_warning.png', pos=(-1 + i*w, 0, 0.85))
+            image_warning.setScale(0.1)
+            image_warning.setTransparency(TransparencyAttrib.MAlpha)
+            image_warning.hide()
+            
+            image_ok = OnscreenImage(image = '../data/Texture/signal_ok.png', pos=(-1 + i*w, 0, 0.85))
+            image_ok.setScale(0.1)
+            image_ok.setTransparency(TransparencyAttrib.MAlpha)
+            image_ok.show()
+            self.vidas_imgs.append((image_ok, image_warning))
+        
         
     def loadLevel(self):
         if (self._map_models != None):
@@ -233,7 +253,16 @@ class World(DirectObject):
         for panel in self._paneles:
             if panel.isBroken():
                 brokens += 1
-        print brokens
+        #print brokens
+        
+        for i, vida_imgs in enumerate(self.vidas_imgs):
+            if i < len(self.vidas_imgs) - brokens:
+                vida_imgs[0].show()
+                vida_imgs[1].hide()
+            else:
+                vida_imgs[0].hide()
+                vida_imgs[1].show()
+            
   
         return task.cont
         
