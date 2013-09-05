@@ -21,7 +21,6 @@ class Modulo(object):
         self._model.reparentTo(self._modulo_node)
         
     def _initPhysics(self, world, x, y, w, h):
-        print Vec3(w*0.5,w*0.5,h*0.5)
         shape = BulletBoxShape(Vec3(w*0.5,w*0.5,h*0.5))
         self._rb_node = BulletRigidBodyNode('Box')
         self._rb_node.setMass(0)

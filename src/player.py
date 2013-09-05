@@ -50,15 +50,15 @@ class Player(object):
     def _initPhysics(self, world):
         rad = 0.5
         shape = BulletSphereShape(rad)
-        self.rbNode = BulletRigidBodyNode('Box')
-        self.rbNode.setMass(1.0)
-        self.rbNode.addShape(shape)
-        self.rbNode.setAngularFactor(Vec3(0,0,0))
-        self.rbNode.setDeactivationEnabled(False, True)
-        self.playerNode = render.attachNewNode(self.rbNode)
+        self._rb_node = BulletRigidBodyNode('Box')
+        self._rb_node.setMass(1.0)
+        self._rb_node.addShape(shape)
+        self._rb_node.setAngularFactor(Vec3(0,0,0))
+        self._rb_node.setDeactivationEnabled(False, True)
+        self.playerNode = render.attachNewNode(self._rb_node)
         self.playerNode.setPos(0, 0, 4)
         self.playerNode.setHpr(0,0,0)
-        world.attachRigidBody(self.rbNode)
+        world.attachRigidBody(self._rb_node)
         self.camNode = self.playerNode.attachNewNode("cam node")
         base.camera.reparentTo(self.camNode)
         self.camNode.setPos(self.camNode, 0, 0, 1.75-rad)
@@ -81,7 +81,7 @@ class Player(object):
     def moveUpdate(self,task):
         if (self._vforce.length() > 0):
             #self.rbNode.applyCentralForce(self._vforce)
-            self.rbNode.applyCentralForce(self.playerNode.getRelativeVector(self.camNode, self._vforce))
+            self._rb_node.applyCentralForce(self.playerNode.getRelativeVector(self.camNode, self._vforce))
         else:
             pass
         
@@ -108,6 +108,10 @@ class Player(object):
     def nogoUp(self):
         self._vforce.setZ( 0)
 
+    def getRBNode(self):
+        return self._rb_node
+        
+        
 class ItemHandling(object):
     def __init__(self, playerNode):
         taskMgr.add(self.setItemPosition, 'ItemPosition')

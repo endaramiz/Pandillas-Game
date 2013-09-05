@@ -97,6 +97,7 @@ class World(DirectObject):
         self._map_models = None
         self._cajas = None
         self._modulos = None
+        self._paneles = None
         
         self._num_lvl = 1
         self._num_lvls = 1
@@ -132,6 +133,11 @@ class World(DirectObject):
         self.dirnlightnode1 = render.attachNewNode(self.dirnlight1)
         self.dirnlightnode1.setHpr(0,317,0)
         render.setLight(self.dirnlightnode1)
+        
+        self.alight = AmbientLight('alight')
+        self.alight.setColor(VBase4(0.05, 0.05, 0.05, 1))
+        self.alight_node = render.attachNewNode(self.alight)
+        render.setLight(self.alight_node)
     
         self.environ1 = loader.loadModel("../data/models/groundPlane")      
         self.environ1.reparentTo(render)
@@ -153,10 +159,14 @@ class World(DirectObject):
         if (self._modulos is not None):
             for m in self._modulos:
                 m.remove()
+        if (self._paneles is not None):
+            for p in self._paneles:
+                p.remove()
+                
         self._tp = TiledParser("map1")
         #self._map_models = self._tp.load_models()
         self._cajas = self._tp.load_cajas()
-        self._modulos = self._tp.load_models(self.world)
+        self._modulos, self._paneles = self._tp.load_models(self.world)
       
     def setAI(self):
         self._LogicTickTime = 1####
@@ -196,6 +206,7 @@ class World(DirectObject):
             if c.perdida: self.gameOver()
             
     def updateCajasSoftPos(self, task):
+        """
         if (self._last_t == None):
             self._last_t = task.time
         if (math.floor(task.time) != math.floor(self._last_t)):
@@ -206,12 +217,17 @@ class World(DirectObject):
                 for caja in self._cajas:
                     caja.model.setPos(caja.j*8 + caja.dj*f*8,-caja.i*8 - caja.di*f*8, 0)
         self._last_t = task.time
-        
+        """ 
         ##################
         
         # Step the simulation and set the new positions
         if (task.frame > 1):
             self.world.doPhysics(globalClock.getDt())
+        
+        for panel in self._paneles:
+            contact = self.world.contactTestPair(self._player.getRBNode(), panel.getRBNode())
+            if contact.getNumContacts() > 0:
+                print panel
   
         return task.cont
         

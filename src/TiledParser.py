@@ -7,6 +7,7 @@ import sys
 
 from caja import Caja
 from modulo import Modulo
+from panel import Panel
 
 class Layer(object):
     def __init__(self, xml_layer):
@@ -49,30 +50,24 @@ class TiledParser(object):
     def load_models(self, world):
         #models = list()
         modulos = list()
+        paneles = list()
         for i in range(self._layer.h()):
             for j in range(self._layer.w()):
                 v = self._layer.get(i, j)
                 #s = 8
                 w = 2.5
                 h = 2
+                x = j*w
+                y = -i*w
                 if (v == 5):
-                    x = j*w
-                    y = i*w
                     modulo = Modulo(world, x, y, w, h)
                     modulos.append(modulo)
-                    #model = loader.loadModel("../data/models/cube.egg")      
-                    #model.reparentTo(render)
-                    #model.setPos(j*w,-i*w,0)
-                    #model.setScale(s/2.)
-                    #models.append(model)
-                    """
                 elif (1 <= v and v <= 4):
-                    model = loader.loadModel("../data/models/my/mybflecha_neg.egg")      
-                    model.reparentTo(render)
-                    model.setPos(j*s,-i*s,0)
-                    model.setScale(s/2.)
-                    model.setHpr(-v*90,0,0)
-                    models.append(model)
+                    modulo = Modulo(world, x, y, w, h)
+                    modulos.append(modulo)
+                    panel = Panel(world, x, y, w, h, (v-1)*90)
+                    paneles.append(panel)
+                    """
                 elif (6 <= v and v <= 9):
                     model = loader.loadModel("../data/models/my/mybflecha_mag.egg")      
                     model.reparentTo(render)
@@ -100,7 +95,7 @@ class TiledParser(object):
                     model.setScale(s/2.)
                     models.append(model)
                     """
-        return modulos
+        return modulos, paneles
         return models
                     
     def load_cajas(self):
