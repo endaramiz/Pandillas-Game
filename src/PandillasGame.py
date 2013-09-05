@@ -44,7 +44,7 @@ from panda3d.bullet import BulletRigidBodyNode
 from panda3d.bullet import BulletBoxShape
 
 from direct.gui.OnscreenImage import OnscreenImage
-
+from direct.gui.OnscreenText import OnscreenText
 #import os
 #os.chdir("../")
 
@@ -111,6 +111,8 @@ class World(DirectObject):
         self.loadLevel()
         self.setAI()
         
+        self._level_time = 100
+        
         self._last_t = None
         self._last_t_space = 0
         
@@ -167,6 +169,8 @@ class World(DirectObject):
             image_ok.setTransparency(TransparencyAttrib.MAlpha)
             image_ok.show()
             self.vidas_imgs.append((image_ok, image_warning))
+            
+        self._level_time_O = OnscreenText(text = '', pos = (0, 0.85), scale = 0.14, fg=(1.0, 1.0, 1.0, 1.0), bg=(0.0, 0.0, 0.0, 1.0))
         
         
     def loadLevel(self):
@@ -243,6 +247,8 @@ class World(DirectObject):
         # Step the simulation and set the new positions
         if (task.frame > 1):
             self.world.doPhysics(globalClock.getDt())
+            self._level_time -= globalClock.getDt()
+            self._level_time_O.setText(str(int(self._level_time)))
         
         for panel in self._paneles:
             contact = self.world.contactTestPair(self._player.getRBNode(), panel.getRBNode())
@@ -263,7 +269,6 @@ class World(DirectObject):
                 vida_imgs[0].hide()
                 vida_imgs[1].show()
             
-  
         return task.cont
         
     def actionSpace(self):
