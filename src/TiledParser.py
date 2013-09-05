@@ -5,7 +5,6 @@ from xml.dom import minidom
 from math import ceil
 import sys
 
-from caja import Caja
 from modulo import Modulo
 from panel import Panel
 

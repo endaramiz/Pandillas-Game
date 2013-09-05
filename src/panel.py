@@ -15,7 +15,7 @@ class Panel(object):
         self._repair()
         self.resetTime()
         
-        taskMgr.add(self.update, 'panel-update')
+        taskMgr.add(self.update, 'panel-task')
         
     def remove(self):
         if self._model is not None:

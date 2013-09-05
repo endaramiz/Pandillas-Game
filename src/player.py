@@ -19,12 +19,12 @@ class Player(object):
         self._attachControls()
         self._initPhysics(btWorld)
         self._loadModel()
-        taskMgr.add(self.mouseUpdate, 'mouse-task')
-        taskMgr.add(self.moveUpdate, 'move-task')
+        taskMgr.add(self.mouseUpdate, 'player-task')
+        taskMgr.add(self.moveUpdate, 'player-task')
         
         self._vforce = Vec3(0,0,0)
         
-        ItemHandling(self.playerNode)
+        #ItemHandling(self.playerNode)
 
     def _attachControls(self):
         #base.accept( "s" , self.__setattr__,["walk",self.STOP] )
@@ -111,11 +111,12 @@ class Player(object):
     def getRBNode(self):
         return self._rb_node
         
-        
+
+"""
 class ItemHandling(object):
     def __init__(self, playerNode):
         taskMgr.add(self.setItemPosition, 'ItemPosition')
 
     def setItemPosition(self, task):
         return task.cont
-        
+"""
