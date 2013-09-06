@@ -40,8 +40,8 @@ class Player(object):
         base.accept("space-up", self.nogoUp)
         
     def _loadModel(self):
-        self._model = loader.loadModel("../data/models/d1_sphere.egg")      
-        self._model.reparentTo(self.playerNode)
+        #self._model = loader.loadModel("../data/models/d1_sphere.egg")      
+        #self._model.reparentTo(self.playerNode)
         
         pl = base.cam.node().getLens()
         pl.setNear(0.4)

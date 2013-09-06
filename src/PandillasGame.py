@@ -61,7 +61,7 @@ MYDIR=Filename.fromOsSpecific(MYDIR).getFullpath()
 
 class World(DirectObject):
     VIDAS = 3
-    
+    LEVEL_TIME = 10#0
     def __init__(self):
         self.keyMap = {"left":0, "right":0, "up":0, "down":0}
         
@@ -78,24 +78,31 @@ class World(DirectObject):
         self._paneles = None
         
         self._num_lvl = 1
-        self._num_lvls = 1
+        self._num_lvls = 2
         
-        self.initBullet()
-        self.loadBkg()
-        self.loadGUI()
         self.loadLevel()
-        self.setAI()
-        
-        self._level_time = 100
+        self.loadGUI()
+        self.loadBkg()
         
         self._last_t = None
         self._last_t_space = 0
         
+        
+    def loadLevel(self):
+        self._level_time = self.LEVEL_TIME
+        self.initBullet()
         self._player = Player(self.world)
+        self.loadMap()
+        self.setAI()
         
     def initBullet(self):
         self.world = BulletWorld()
         self.world.setGravity(Vec3(0, 0, -9.81))
+        
+        groundShape = BulletPlaneShape(Vec3(0, 0, 1), 0)
+        groundNode = BulletRigidBodyNode('Ground')
+        groundNode.addShape(groundShape)
+        self.world.attachRigidBody(groundNode)
  
     def loadBkg(self):
         self.environ1 = loader.loadModel("../data/models/skydome")      
@@ -125,10 +132,6 @@ class World(DirectObject):
         self.environ1.setPos(0,0,0)
         self.environ1.setScale(1)
         
-        groundShape = BulletPlaneShape(Vec3(0, 0, 1), 0)
-        groundNode = BulletRigidBodyNode('Ground')
-        groundNode.addShape(groundShape)
-        self.world.attachRigidBody(groundNode)
         
     def loadGUI(self):
         self.vidas_imgs = list()
@@ -148,7 +151,7 @@ class World(DirectObject):
         self._level_time_O = OnscreenText(text = '', pos = (0, 0.85), scale = 0.14, fg=(1.0, 1.0, 1.0, 1.0), bg=(0.0, 0.0, 0.0, 1.0))
         
         
-    def loadLevel(self):
+    def loadMap(self):
         if (self._modulos is not None):
             for m in self._modulos:
                 m.remove()
@@ -156,14 +159,14 @@ class World(DirectObject):
             for p in self._paneles:
                 p.remove()
                 
-        self._tp = TiledParser("map1")
+        self._tp = TiledParser("map"+str(self._num_lvl))
         self._cajas = self._tp.load_cajas()
         self._modulos, self._paneles = self._tp.load_models(self.world)
       
     def setAI(self):
-        taskMgr.add(self.updateCajasSoftPos, 'Update Cajas Soft Pos')
+        taskMgr.add(self.update, 'Update')
             
-    def updateCajasSoftPos(self, task):
+    def update(self, task):
         if (task.frame > 1):
             self.world.doPhysics(globalClock.getDt())
             self._level_time -= globalClock.getDt()
@@ -191,15 +194,20 @@ class World(DirectObject):
         if brokens > self.VIDAS:
             self.gameOver()
             return task.done
+            
         if self._level_time <= 0:
-            self.nextLevel()
+            self._num_lvl += 1
+            if self._num_lvl <= self._num_lvls:
+                self.nextLevel()
+            else:
+                self.theEnd()
             return task.done
         return task.cont
 
     def gameOver(self):
         taskMgr.remove('player-task')
         taskMgr.remove('panel-task')
-        self._level_time_O = OnscreenText(text = 'Game Over', pos = (0, 0), scale = 0.5, fg=(1.0, 1.0, 1.0, 1.0), bg=(0.0, 0.0, 0.0, 1.0))
+        self._mission_text_O = OnscreenText(text = 'Game Over', pos = (0, 0), scale = 0.5, fg=(1.0, 1.0, 1.0, 1.0), bg=(0.0, 0.0, 0.0, 1.0))
         taskMgr.add(self.gameOverTransition, 'game-over-transition')
         #self.loadLevel()
         print "Game Over"
@@ -207,6 +215,7 @@ class World(DirectObject):
     def gameOverTransition(self, task):
         base.win.movePointer(0, base.win.getXSize() / 2, base.win.getYSize() / 2)
         if task.time > 3.0:
+            self._mission_text_O.hide()
             props = WindowProperties()
             props.setCursorHidden(False)
             base.win.requestProperties(props)
@@ -218,22 +227,39 @@ class World(DirectObject):
     def nextLevel(self):
         taskMgr.remove('player-task')
         taskMgr.remove('panel-task')
-        self._level_time_O = OnscreenText(text = 'Mission\nComplete', pos = (0, 0), scale = 0.5, fg=(1.0, 1.0, 1.0, 1.0), bg=(0.0, 0.0, 0.0, 1.0))
+        self._mission_text_O = OnscreenText(text = 'Mission\nComplete', pos = (0, 0), scale = 0.5, fg=(1.0, 1.0, 1.0, 1.0), bg=(0.0, 0.0, 0.0, 1.0))
         taskMgr.add(self.nextLevelTransition, 'next-Level-transition')
-        #self.loadLevel()
         print "Mission Complete"
         
     def nextLevelTransition(self, task):
         base.win.movePointer(0, base.win.getXSize() / 2, base.win.getYSize() / 2)
         if task.time > 3.0:
-            props = WindowProperties()
-            props.setCursorHidden(False)
-            base.win.requestProperties(props)
             print "Next Level"
+            self._mission_text_O.hide()
+            self.loadLevel()
             return task.done
 
         return task.cont
         
+    def theEnd(self):
+        taskMgr.remove('player-task')
+        taskMgr.remove('panel-task')
+        self._mission_text_O = OnscreenText(text = '.       The End       .', pos = (0, 0), scale = 0.5, fg=(1.0, 1.0, 1.0, 1.0), bg=(0.0, 0.0, 0.0, 1.0))
+        taskMgr.add(self.theEndTransition, 'theEnd-transition')
+        #self.loadLevel()
+        print "Mission Complete"
+        
+    def theEndTransition(self, task):
+        base.win.movePointer(0, base.win.getXSize() / 2, base.win.getYSize() / 2)
+        if task.time > 3.0:
+            self._mission_text_O.hide()
+            props = WindowProperties()
+            props.setCursorHidden(False)
+            base.win.requestProperties(props)
+            print "The End"
+            return task.done
+
+        return task.cont
         
 w = World()
 run()
