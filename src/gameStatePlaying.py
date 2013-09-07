@@ -50,7 +50,8 @@ MYDIR=Filename.fromOsSpecific(MYDIR).getFullpath()
 
 class GameStatePlaying(GState):
     VIDAS = 3
-    LEVEL_TIME = 10#0
+    #LEVEL_TIME = 100
+    LEVEL_TIME = 500
     
     def start(self):
         self._playing_node = render.attachNewNode("playing-node")
@@ -202,6 +203,7 @@ class GameStatePlaying(GState):
     def gameOver(self):
         taskMgr.remove('player-task')
         taskMgr.remove('panel-task')
+        taskMgr.remove('panel-sound-task')
         self._mission_text_O = OnscreenText(text = 'Game Over', pos = (0, 0), scale = 0.5, fg=(1.0, 1.0, 1.0, 1.0), bg=(0.0, 0.0, 0.0, 1.0))
         taskMgr.add(self.gameOverTransition, 'game-over-transition')
         #self.loadLevel()
@@ -223,6 +225,7 @@ class GameStatePlaying(GState):
     def nextLevel(self):
         taskMgr.remove('player-task')
         taskMgr.remove('panel-task')
+        taskMgr.remove('panel-sound-task')
         self._mission_text_O = OnscreenText(text = 'Mission\nComplete', pos = (0, 0), scale = 0.5, fg=(1.0, 1.0, 1.0, 1.0), bg=(0.0, 0.0, 0.0, 1.0))
         taskMgr.add(self.nextLevelTransition, 'next-Level-transition')
         print "Mission Complete"
@@ -240,6 +243,7 @@ class GameStatePlaying(GState):
     def theEnd(self):
         taskMgr.remove('player-task')
         taskMgr.remove('panel-task')
+        taskMgr.remove('panel-sound-task')
         self._mission_text_O = OnscreenText(text = '.       The End       .', pos = (0, 0), scale = 0.5, fg=(1.0, 1.0, 1.0, 1.0), bg=(0.0, 0.0, 0.0, 1.0))
         taskMgr.add(self.theEndTransition, 'theEnd-transition')
         #self.loadLevel()
