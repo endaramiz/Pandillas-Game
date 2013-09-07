@@ -124,7 +124,7 @@ class GameStatePlaying(GState):
         self.alight_node = self._playing_node.attachNewNode(self.alight)
         self._playing_node.setLight(self.alight_node)
     
-        self.environ1 = loader.loadModel("../data/models/groundPlane")      
+        self.environ1 = loader.loadModel("../data/models/ground")      
         self.environ1.reparentTo(self._playing_node)
         self.environ1.setPos(0,0,0)
         self.environ1.setScale(1)
