@@ -16,8 +16,8 @@ class Modulo(object):
             self._model.remove()
             
     def _loadModel(self, x, y, h):
-        self._model = loader.loadModel("../data/models/cube.egg")
-        self._model.setPos(0,0,-h/2)
+        self._model = loader.loadModel("../data/models/modulo.egg")
+        self._model.setPos(0,0,0)
         self._model.reparentTo(self._modulo_node)
         
     def _initPhysics(self, world, x, y, w, h, parent_node):

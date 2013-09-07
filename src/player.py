@@ -44,7 +44,7 @@ class Player(object):
         #self._model.reparentTo(self.playerNode)
         
         pl = base.cam.node().getLens()
-        pl.setNear(0.4)
+        pl.setNear(0.2)
         base.cam.node().setLens(pl)
 
     def _initPhysics(self, world):

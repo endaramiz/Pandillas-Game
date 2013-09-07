@@ -53,8 +53,8 @@ class TiledParser(object):
             for j in range(self._layer.w()):
                 v = self._layer.get(i, j)
                 #s = 8
-                w = 2.5
-                h = 2
+                w = 4
+                h = 2.5
                 x = j*w
                 y = -i*w
                 if (v == 5):
