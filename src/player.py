@@ -13,7 +13,7 @@ class Player(object):
 
     #global playerNode
     #playerNode = NodePath('player')
-    F_MOVE = 10.0
+    F_MOVE = 400.0
     
     def __init__(self, btWorld):
         self._attachControls()
@@ -48,10 +48,11 @@ class Player(object):
         base.cam.node().setLens(pl)
 
     def _initPhysics(self, world):
-        rad = 0.5
+        rad = 1
         shape = BulletSphereShape(rad)
         self._rb_node = BulletRigidBodyNode('Box')
-        self._rb_node.setMass(1.0)
+        self._rb_node.setMass(80.0)
+        self._rb_node.setFriction(1.8)
         self._rb_node.addShape(shape)
         self._rb_node.setAngularFactor(Vec3(0,0,0))
         self._rb_node.setDeactivationEnabled(False, True)
@@ -104,7 +105,7 @@ class Player(object):
     def nogoRight(self):
         self._vforce.setX( 0)
     def goUp(self):
-        self._vforce.setZ( self.F_MOVE*2)
+        self._vforce.setZ( self.F_MOVE*1.4)
     def nogoUp(self):
         self._vforce.setZ( 0)
 

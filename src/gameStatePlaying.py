@@ -51,7 +51,7 @@ MYDIR=Filename.fromOsSpecific(MYDIR).getFullpath()
 class GameStatePlaying(GState):
     VIDAS = 3
     #LEVEL_TIME = 100
-    LEVEL_TIME = 500
+    LEVEL_TIME = 50
     
     def start(self):
         self._playing_node = render.attachNewNode("playing-node")
@@ -94,7 +94,8 @@ class GameStatePlaying(GState):
         
     def initBullet(self):
         self.world = BulletWorld()
-        self.world.setGravity(Vec3(0, 0, -9.81))
+        #self.world.setGravity(Vec3(0, 0, -9.81))
+        self.world.setGravity(Vec3(0, 0, -1.62))
         
         groundShape = BulletPlaneShape(Vec3(0, 0, 1), 0)
         groundNode = BulletRigidBodyNode('Ground')
