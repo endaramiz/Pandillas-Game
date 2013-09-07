@@ -7,9 +7,9 @@ from panda3d.bullet import BulletBoxShape
 import random
 
 class Panel(object):
-    def __init__(self, world, x, y, w, h, adir):
+    def __init__(self, world, x, y, w, h, adir, parent_node):
         self._model = None
-        self._initPhysics(world, x, y, w, h, adir)
+        self._initPhysics(world, x, y, w, h, adir, parent_node)
         self._loadModel(x, y, h)
         self._broken = False
         self._repair()
@@ -28,7 +28,7 @@ class Panel(object):
         self._model_r.reparentTo(self._modulo_node)
         self._model_g.reparentTo(self._modulo_node)
         
-    def _initPhysics(self, world, x, y, w, h, adir):
+    def _initPhysics(self, world, x, y, w, h, adir, parent_node):
         shape = BulletBoxShape(Vec3(w/4.0, w/4.0, h/4.0))
         self._g_node = BulletGhostNode('Box')
         #self._rb_node.setMass(0)
@@ -37,7 +37,7 @@ class Panel(object):
         #self._rb_node.setDeactivationEnabled(False, True)
         world.attachGhost(self._g_node)
         
-        self._modulo_node = render.attachNewNode(self._g_node)
+        self._modulo_node = parent_node.attachNewNode(self._g_node)
         self._modulo_node.setPos(x, y, h/2.0)
         self._modulo_node.setHpr(adir, 0, 0)
         self._modulo_node.setPos(self._modulo_node, 0, w/2.0, 0)

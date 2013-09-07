@@ -1,11 +1,11 @@
-from gameStatePlaying import GameStatePlaying
+from gameStateMenu import GameStateMenu
 
 import sys
 
 class StateManager(object):
     def __init__(self):
         self._state = None
-        self.changeState(GameStatePlaying(self))
+        self.changeState(GameStateMenu(self))
         run()
         
     def changeState(self, state):
@@ -16,7 +16,8 @@ class StateManager(object):
         
     def exit(self):
         print "EXIT"
+        self._state.stop()
         sys.exit()
                
 e = StateManager()
-
+run()

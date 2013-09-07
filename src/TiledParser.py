@@ -46,8 +46,7 @@ class TiledParser(object):
         xml_doc = minidom.parse("../data/tiles/maps/"+tilemap_name+".tmx")
         self._layer = Layer(xml_doc.getElementsByTagName("layer")[0])
         
-    def load_models(self, world):
-        #models = list()
+    def load_models(self, world, parent_node):
         modulos = list()
         paneles = list()
         for i in range(self._layer.h()):
@@ -59,12 +58,12 @@ class TiledParser(object):
                 x = j*w
                 y = -i*w
                 if (v == 5):
-                    modulo = Modulo(world, x, y, w, h)
+                    modulo = Modulo(world, x, y, w, h, parent_node)
                     modulos.append(modulo)
                 elif (1 <= v and v <= 4):
-                    modulo = Modulo(world, x, y, w, h)
+                    modulo = Modulo(world, x, y, w, h, parent_node)
                     modulos.append(modulo)
-                    panel = Panel(world, x, y, w, h, (v-1)*90)
+                    panel = Panel(world, x, y, w, h, (v-1)*90, parent_node)
                     paneles.append(panel)
                     """
                 elif (6 <= v and v <= 9):
@@ -95,24 +94,6 @@ class TiledParser(object):
                     models.append(model)
                     """
         return modulos, paneles
-        return models
-                    
-    def load_cajas(self):
-        cajas = list()
-        for i in range(self._layer.h()):
-            for j in range(self._layer.w()):
-                v = self._layer.get(i, j)
-                dirs = [[-1,0], [0,1], [1,0], [0,-1]]
-                s = 8
-                if (13 <= v and v <= 16):
-                    caja_model = loader.loadModel("../data/models/my/mybox.egg")                     
-                    caja_model.reparentTo(render)
-                    caja_model.setPos(j*s,-i*s, 0)
-                    caja_model.setScale(s/2.)
-                    caja_model.setHpr(-v*90,0,0)
-                    caja = Caja(i, j, dirs[v-13][0], dirs[v-13][1], caja_model)
-                    cajas.append(caja)
-        return cajas
         
     def get_dir(self, i, j, desvio_activated=False):
         v = self._layer.get(i, j)

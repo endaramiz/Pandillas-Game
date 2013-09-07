@@ -1,4 +1,6 @@
 from gameState import GState
+import gameStateMenu
+
 
 #for directx window and functions
 import direct.directbase.DirectStart
@@ -51,6 +53,9 @@ class GameStatePlaying(GState):
     LEVEL_TIME = 10#0
     
     def start(self):
+        self._playing_node = render.attachNewNode("playing-node")
+        self._playing_node2d = aspect2d.attachNewNode("playing2d-node")
+        
         self.keyMap = {"left":0, "right":0, "up":0, "down":0}
         
         base.accept( "escape" , sys.exit)
@@ -76,7 +81,8 @@ class GameStatePlaying(GState):
         self._last_t_space = 0
         
     def stop(self):
-        pass
+        self._playing_node.removeNode()
+        self._playing_node2d.removeNode()
         
     def loadLevel(self):
         self._level_time = self.LEVEL_TIME
@@ -96,29 +102,29 @@ class GameStatePlaying(GState):
  
     def loadBkg(self):
         self.environ1 = loader.loadModel("../data/models/skydome")      
-        self.environ1.reparentTo(render)
+        self.environ1.reparentTo(self._playing_node)
         self.environ1.setPos(0,0,0)
         self.environ1.setScale(1)
         
         self.environ2 = loader.loadModel("../data/models/skydome")      
-        self.environ2.reparentTo(render)
+        self.environ2.reparentTo(self._playing_node)
         self.environ2.setP(180)
         self.environ2.setH(270)
         self.environ2.setScale(1)
         
         self.dirnlight1 = DirectionalLight("dirn_light1")
         self.dirnlight1.setColor(Vec4(1.0,1.0,1.0,1.0))
-        self.dirnlightnode1 = render.attachNewNode(self.dirnlight1)
+        self.dirnlightnode1 = self._playing_node.attachNewNode(self.dirnlight1)
         self.dirnlightnode1.setHpr(0,317,0)
-        render.setLight(self.dirnlightnode1)
+        self._playing_node.setLight(self.dirnlightnode1)
         
         self.alight = AmbientLight('alight')
         self.alight.setColor(VBase4(0.05, 0.05, 0.05, 1))
-        self.alight_node = render.attachNewNode(self.alight)
-        render.setLight(self.alight_node)
+        self.alight_node = self._playing_node.attachNewNode(self.alight)
+        self._playing_node.setLight(self.alight_node)
     
         self.environ1 = loader.loadModel("../data/models/groundPlane")      
-        self.environ1.reparentTo(render)
+        self.environ1.reparentTo(self._playing_node)
         self.environ1.setPos(0,0,0)
         self.environ1.setScale(1)
         
@@ -127,18 +133,18 @@ class GameStatePlaying(GState):
         self.vidas_imgs = list()
         w = 0.24
         for i in range(self.VIDAS):
-            image_warning = OnscreenImage(image = '../data/Texture/signal_warning.png', pos=(-1 + i*w, 0, 0.85))
+            image_warning = OnscreenImage(image = '../data/Texture/signal_warning.png', pos=(-1 + i*w, 0, 0.85), parent=self._playing_node2d)
             image_warning.setScale(0.1)
             image_warning.setTransparency(TransparencyAttrib.MAlpha)
             image_warning.hide()
             
-            image_ok = OnscreenImage(image = '../data/Texture/signal_ok.png', pos=(-1 + i*w, 0, 0.85))
+            image_ok = OnscreenImage(image = '../data/Texture/signal_ok.png', pos=(-1 + i*w, 0, 0.85), parent=self._playing_node2d)
             image_ok.setScale(0.1)
             image_ok.setTransparency(TransparencyAttrib.MAlpha)
             image_ok.show()
             self.vidas_imgs.append((image_ok, image_warning))
             
-        self._level_time_O = OnscreenText(text = '', pos = (0, 0.85), scale = 0.14, fg=(1.0, 1.0, 1.0, 1.0), bg=(0.0, 0.0, 0.0, 1.0))
+        self._level_time_O = OnscreenText(text = '', pos = (0, 0.85), scale = 0.14, fg=(1.0, 1.0, 1.0, 1.0), bg=(0.0, 0.0, 0.0, 1.0), parent=self._playing_node2d)
         
         
     def loadMap(self):
@@ -150,8 +156,7 @@ class GameStatePlaying(GState):
                 p.remove()
                 
         self._tp = TiledParser("map"+str(self._num_lvl))
-        self._cajas = self._tp.load_cajas()
-        self._modulos, self._paneles = self._tp.load_models(self.world)
+        self._modulos, self._paneles = self._tp.load_models(self.world, self._playing_node)
       
     def setAI(self):
         taskMgr.add(self.update, 'Update')
@@ -209,6 +214,7 @@ class GameStatePlaying(GState):
             props = WindowProperties()
             props.setCursorHidden(False)
             base.win.requestProperties(props)
+            self._state_context.changeState(gameStateMenu.GameStateMenu(self._state_context))
             print "MENU"
             return task.done
 
@@ -246,6 +252,7 @@ class GameStatePlaying(GState):
             props = WindowProperties()
             props.setCursorHidden(False)
             base.win.requestProperties(props)
+            self._state_context.changeState(gameStateMenu.GameStateMenu(self._state_context))
             print "The End"
             return task.done
 
